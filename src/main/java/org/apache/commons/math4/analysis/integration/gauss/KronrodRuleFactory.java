@@ -3,13 +3,23 @@ package org.apache.commons.math4.analysis.integration.gauss;
 import org.apache.commons.math4.exception.DimensionMismatchException;
 import org.apache.commons.math4.linear.EigenDecomposition;
 import org.apache.commons.math4.linear.RealMatrix;
+import org.apache.commons.math4.util.FastMath;
 import org.apache.commons.math4.util.Pair;
 
 import java.util.Arrays;
 
 /**
- * Generates the (2n+1)-point Gauss-Kronrod quadrature rule.
- * TODO: Finish docs
+ * Uses computation method presented by Dirk P. Laurie to Generates the (2n+1)-point
+ * Gauss-Kronrod quadrature rule. The presented algorithm perfomrs O(n^2) computations for computing
+ * the Kronrod rule set. Lower and upper bounds are -1 and 1.
+ * Adapted from Pseudo code[1] and MATALB implementation[2]
+ *
+ * References:
+ * [1]<a href="http://www.ams.org/journals/mcom/1997-66-219/S0025-5718-97-00861-2/S0025-5718-97-00861-2.pdf">
+ * D. P. Laurie, Jan. 2001</a>
+ * [2]<a href="https://www.cs.purdue.edu/archives/2002/wxg/codes/OPQ.html">
+ * W. Gautschi, Jan. 2002</a>
+ *
  */
 public class KronrodRuleFactory extends BaseRuleFactory<Double> {
 
@@ -17,14 +27,11 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
     protected Pair<Double[], Double[]> computeRule(int numberOfPoints) throws DimensionMismatchException {
         double[] v = Jacobi(numberOfPoints*2);
         double[][] v2 = JacobiKronrod(numberOfPoints, v);
-        return Kronrod(2, v2);
+        return Kronrod(numberOfPoints, v2);
     }
 
     /**
-     * Generates n recurrence coefficients for monic Jacobi polynomials. The n alpha-coefficients
-     * are stored in the first column, the n beta-coefficients in
-     * the second column, of the nx2 array ab.
-     * Orthogonal on [0,1], weight function w(t)=(1-t)^a t^b.
+     * Generates recurrence coefficients for Jacobi polynomials from N points.
      * @param N Number of Points
      * @return
      */
@@ -38,17 +45,12 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
             //TODO
         }
         N -= 1;
-        int[] n = new int[N];
 
-        // TODO: Merge
-        for (int i = 0, j = 1; i < N; i++, j++){
-            n[i] = j;
-        }
         double[] nab = new double[N];
-        for (int i = 0; i < N; i++) {
-            nab[i] = (n[i] * 2);
+        for (int i = 0, j = 1; i < N; i++, j++) {
+            nab[i] = (j * 2);
         }
-        n = new int[N - 1];
+        int[] n = new int[N - 1];
         for (int i = 0, j = 2; i < N-1; i++, j++){
             n[i] = j;
         }
@@ -61,7 +63,7 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
         double b1 = 1d/3d;
         double[] v1 = new double[n.length];
         for (int i = 0; i < n.length; i++){
-            v1[i] = (Math.pow(n[i], 4) * 4)/(Math.pow(nab2[i], 2) * (Math.pow(nab2[i], 2) - 1));
+            v1[i] = (FastMath.pow(n[i], 4) * 4)/(FastMath.pow(nab2[i], 2) * (FastMath.pow(nab2[i], 2) - 1));
         }
         N += 1;
         double[] out1 = new double[N];
@@ -79,7 +81,8 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
     }
 
     /**
-     *
+     * Generates alpha and beta elements in JacobiKronrod matrix. Used in the calculation of the
+     * Tri-Diagonal JacobiKronrod Matrix.
      * @param N
      * @param ab2
      * @return
@@ -99,7 +102,6 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
         double[] t = new double[N / 2 + 2];
         t[1] = b[N + 1];
 
-        /////////
         for (int i = 0; i < N - 1; i++) {
             int [] l = new int[(i + 1) / 2 + 1];
             for (int j = (i + 1) / 2, k = 0; j > -1; j--, k++) {
@@ -149,7 +151,8 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
     }
 
     /**
-     *
+     * Computes the GaussKronrod quadrature rulset. 2N+1 nodes (abscissae) are
+     * output into the first column and the second column corresponds to the weights.
      * @param N
      * @param ab0
      * @return
@@ -167,14 +170,17 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
             j[i + 1][i] = j[i][i + 1];
         }
 
+        // Calculating the Eigen Values and vectors for the symmetric tri-diagonal
+        // GaussKronrod Matrix
         j[2 * N][2 * N] = ab0[0][2 * N];
         EigenDecomposition eig = new EigenDecomposition(diag2, diag1);
         RealMatrix V = eig.getV();
         RealMatrix D = eig.getD();
         double[] d2 = Diag(D.getData());
         double[] e = new double[ab0[0].length];
+
         for (int i = 0; i < e.length; i++) {
-            e[i] = ab0[1][0] * (Math.pow(V.getEntry(0, i), 2));
+            e[i] = ab0[1][0] * (FastMath.pow(V.getEntry(0, i), 2));
         }
 
         Arrays.sort(d2);
@@ -184,12 +190,12 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
             abscissae[i] = 2 * d2[i] - 1;
             weights[i] = 2 * e[i];
         }
-
         return new Pair<>(abscissae, weights);
     }
 
     /**
-     *
+     * Finds the cumulative sum of the argument array.
+     * <a href="http://mathworld.wolfram.com/CumulativeSum.html">
      * @param arr
      * @return
      */
@@ -204,7 +210,7 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
     }
 
     /**
-     *
+     * Returns the main diagonal of the given M x N matrix.
      * @param arr
      * @return
      */

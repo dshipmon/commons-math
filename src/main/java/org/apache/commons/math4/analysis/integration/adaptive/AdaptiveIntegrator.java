@@ -18,7 +18,12 @@ public class AdaptiveIntegrator {
         this.integrator = integrator;
     }
 
-    public double integrate(double min, double max){
+    public double integrate(double min, double max, int maxEval){
+        Double Q = integrator.integrate(maxEval, function, min, max);
+        return 0;
+    }
+
+    private double simpsonError(int a, int b){
         return 0;
     }
 }
