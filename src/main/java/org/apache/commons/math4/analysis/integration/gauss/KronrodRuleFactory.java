@@ -10,15 +10,15 @@ import java.util.Arrays;
 
 /**
  * Uses computation method presented by Dirk P. Laurie to Generates the (2n+1)-point
- * Gauss-Kronrod quadrature rule. The presented algorithm perfomrs O(n^2) computations for computing
+ * Gauss-Kronrod quadrature rule. The presented algorithm performs O(n^2) computations for computing
  * the Kronrod rule set. Lower and upper bounds are -1 and 1.
- * Adapted from Pseudo code[1] and MATALB implementation[2]
+ * Adapted from Pseudo code[1] and MATLAB implementation[2]
  *
  * References:
  * [1]<a href="http://www.ams.org/journals/mcom/1997-66-219/S0025-5718-97-00861-2/S0025-5718-97-00861-2.pdf">
  * D. P. Laurie, Jan. 2001</a>
  * [2]<a href="https://www.cs.purdue.edu/archives/2002/wxg/codes/OPQ.html">
- * W. Gautschi, Jan. 2002</a>
+ * W. Gautschi, 2002</a>
  *
  */
 public class KronrodRuleFactory extends BaseRuleFactory<Double> {
