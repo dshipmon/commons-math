@@ -25,7 +25,7 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
 
     @Override
     protected Pair<Double[], Double[]> computeRule(int numberOfPoints) throws DimensionMismatchException {
-        double[] v = Jacobi(numberOfPoints*2);
+        double[] v = Jacobi(numberOfPoints * 2);
         double[][] v2 = JacobiKronrod(numberOfPoints, v);
         return Kronrod(numberOfPoints, v2);
     }
@@ -81,8 +81,7 @@ public class KronrodRuleFactory extends BaseRuleFactory<Double> {
     }
 
     /**
-     * Generates alpha and beta elements in JacobiKronrod matrix. Used in the calculation of the
-     * Tri-Diagonal JacobiKronrod Matrix.
+     * Generates alpha and beta elements in JacobiKronrod matrix.
      * @param N
      * @param ab2
      * @return

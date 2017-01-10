@@ -35,6 +35,31 @@ public class GaussIntegratorFactory {
     private final BaseRuleFactory<BigDecimal> legendreHighPrecision = new LegendreHighPrecisionRuleFactory();
     /** Generator of Gauss-Hermite integrators. */
     private final BaseRuleFactory<Double> hermite = new HermiteRuleFactory();
+    /**Generator of Gauss-Kronrod integrators */
+    private final BaseRuleFactory<Double> kronrod = new KronrodRuleFactory();
+
+
+    /**
+     * Creates a Gauss-Kronrod Integrator of the given order.
+     * The call to the
+     * {@link GaussIntegrator#integrate(org.apache.commons.math4.analysis.UnivariateFunction)
+     * integrate} method will perform an integration on the natural interval
+     * {@code [-1 , 1]}.
+     *
+     * @param numberOfPoints Order of the integration rule. Note that the Kronrod rule will return
+     *                       2*n + 1 points.
+     * @return a Gauss-Kronrod integrator
+     */
+    public GaussIntegrator kronrod(int numberOfPoints){
+        return new GaussIntegrator(getRuleKronrod(kronrod, numberOfPoints));
+    }
+
+    public GaussIntegrator kronrod(int numberOfPoints,
+                                   double lowerBound,
+                                   double upperBound) throws NotStrictlyPositiveException{
+        return new GaussIntegrator(transform(getRuleKronrod(kronrod, numberOfPoints),
+                lowerBound, upperBound));
+    }
 
     /**
      * Creates a Gauss-Legendre integrator of the given order.
@@ -135,6 +160,12 @@ public class GaussIntegratorFactory {
                                                     int numberOfPoints)
         throws NotStrictlyPositiveException, DimensionMismatchException {
         return factory.getRule(numberOfPoints);
+    }
+
+    private static Pair<double[], double[]> getRuleKronrod(BaseRuleFactory<? extends Number> factory,
+                                                    int numberOfPoints)
+            throws NotStrictlyPositiveException, DimensionMismatchException {
+        return factory.getRuleKronrod(numberOfPoints);
     }
 
     /**

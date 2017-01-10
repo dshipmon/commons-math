@@ -79,6 +79,37 @@ public abstract class BaseRuleFactory<T extends Number> {
                                             cached.getSecond().clone());
     }
 
+    public Pair<double[], double[]> getRuleKronrod(int numberOfPoints)
+            throws NotStrictlyPositiveException, DimensionMismatchException{
+
+        if (numberOfPoints <= 0){
+            throw new NotStrictlyPositiveException(LocalizedFormats.NUMBER_OF_POINTS, numberOfPoints);
+        }
+
+        Pair<double[], double[]> cached = pointsAndWeightsDouble.get((2 * numberOfPoints) + 1);
+
+        if (cached == null){
+
+            final Pair<T[], T[]> rule = getRuleInternalKronrod(numberOfPoints);
+            cached = convertToDouble(rule);
+
+            pointsAndWeightsDouble.put(((2 * numberOfPoints) + 1), cached);
+        }
+
+        return new Pair<double[], double[]>(cached.getFirst().clone(), cached.getSecond().clone());
+    }
+
+    protected synchronized Pair<T[], T[]> getRuleInternalKronrod(int numberOfPoints)
+            throws DimensionMismatchException {
+        final Pair<T[], T[]> rule = pointsAndWeights.get((2 * numberOfPoints) + 1);
+        if (rule == null) {
+            addRule(computeRule(numberOfPoints));
+            // The rule should be available now.
+            return getRuleInternalKronrod(numberOfPoints);
+        }
+        return rule;
+    }
+
     /**
      * Gets a rule.
      * Synchronization ensures that rules will be computed and added to the

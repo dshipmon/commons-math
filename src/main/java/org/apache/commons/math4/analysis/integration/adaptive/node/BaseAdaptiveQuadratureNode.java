@@ -4,15 +4,15 @@ package org.apache.commons.math4.analysis.integration.adaptive.node;
 public abstract class BaseAdaptiveQuadratureNode<T> {
     private T a;
     private T b;
-    private T approximateIntegral;
+    private T integral;
     private T error;
 
     public BaseAdaptiveQuadratureNode(){}
 
-    public BaseAdaptiveQuadratureNode(T a, T b, T approximateIntegral, T error) {
+    public BaseAdaptiveQuadratureNode(T a, T b, T integral, T error) {
         this.a = a;
         this.b = b;
-        this.approximateIntegral = approximateIntegral;
+        this.integral = integral;
         this.error = error;
     }
 
@@ -32,12 +32,12 @@ public abstract class BaseAdaptiveQuadratureNode<T> {
         this.b = b;
     }
 
-    public T getApproximateIntegral() {
-        return approximateIntegral;
+    public T getIntegral() {
+        return integral;
     }
 
-    public void setApproximateIntegral(T approximateIntegral) {
-        this.approximateIntegral = approximateIntegral;
+    public void setIntegral(T integral) {
+        this.integral = integral;
     }
 
     public T getError() {

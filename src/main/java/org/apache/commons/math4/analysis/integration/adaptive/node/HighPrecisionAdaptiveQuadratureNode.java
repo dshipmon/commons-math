@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 
 
 public class HighPrecisionAdaptiveQuadratureNode extends BaseAdaptiveQuadratureNode<BigDecimal> implements Comparable<HighPrecisionAdaptiveQuadratureNode> {
-    public HighPrecisionAdaptiveQuadratureNode() {
-    }
 
     public HighPrecisionAdaptiveQuadratureNode(BigDecimal a, BigDecimal b, BigDecimal approximateIntegral, BigDecimal error) {
         super(a, b, approximateIntegral, error);
